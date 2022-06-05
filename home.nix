@@ -51,6 +51,10 @@ in {
     userName = "Nikodem Rabuliński";
     userEmail = "nikodem@rabulinski.com";
     difftastic.enable = true;
+    signing = {
+      key = "FF629AA9E08138DB";
+      signByDefault = true;
+    };
   };
   
   programs.neovim = {
@@ -94,7 +98,7 @@ in {
   services.gpg-agent = {
     enable = true;
     enableSshSupport = true;
-    pinentryFlavor = "tty";  
+    pinentryFlavor = "curses";  
     sshKeys = [
       "81CC27083653861F657A23280C32A9B41DAEF9A0"
     ];
