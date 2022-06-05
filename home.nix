@@ -1,4 +1,4 @@
-{ config, pkgs, ... }:
+{ config, pkgs, fenix, ... }:
 
 let
   rustToolchain = pkgs.fenix.complete.withComponents [
@@ -12,38 +12,31 @@ let
     "rustfmt"
   ];
 in {
-  nixpkgs.overlays = [
-    (
-      let
-        fenix = builtins.fetchTarball {
-          url = "https://github.com/nix-community/fenix/archive/8dccfbe51a8adea643ec29a4ec516499a5a081c6.tar.gz";
-          sha256 = "1nckkl9m6f28ifbk6dgvzyjxf41bja7iinpf3j0p18zfsz3v7qzs";
-        };
-      in import "${fenix}/overlay.nix"
-    )
-  ];
+  nixpkgs.overlays = [ fenix.overlay ];
 
-  home.username = "nixos";
-  home.homeDirectory = "/home/nixos";
-  home.sessionVariables.EDITOR = "hx";
-  
-  home.packages = with pkgs; [
-    lldb
-    rustToolchain
-  ];
+  home = {
+    username = "nixos";
+    homeDirectory = "/home/nixos";
+    sessionVariables.EDITOR = "hx";
+  };
+
+  home.packages = with pkgs; [ bintools clang lldb rustToolchain mold ];
+  home.file.".cargo/config.toml".source =
+    (pkgs.formats.toml { }).generate "cargo-config" {
+      target.x86_64-unknown-linux-gnu = {
+        linker = "clang";
+        rustflags = [ "-C" "link-arg=-fuse-ld=${pkgs.mold}/bin/mold" ];
+      };
+    };
 
   programs.home-manager.enable = true;
+  programs.direnv.enable = true;
   programs.exa.enable = true;
 
   programs.fish = {
     enable = true;
-    functions = {
-      l = {
-        wraps = "exa";
-        description = "alias l=exa -lah";
-        body = "exa -lah $argv";
-      };
-    };
+    shellAliases = { l = "exa -lah"; };
+    functions = { fish_prompt = { body = builtins.readFile ./prompt.fish; }; };
   };
 
   programs.git = {
@@ -56,7 +49,7 @@ in {
       signByDefault = true;
     };
   };
-  
+
   programs.neovim = {
     enable = true;
     vimAlias = true;
@@ -73,34 +66,21 @@ in {
         cursor-shape.insert = "bar";
       };
     };
-    languages = [
-      {
-        name = "rust";
-        language-server = {
-            command = "${rustToolchain}/bin/rust-analyzer";
-        };
-        debugger = {
-          name = "rust-lldb";
-          transport = "stdio";
-          command = "${rustToolchain}/bin/rust-lldb";
-        };
-      }
-    ];
+    languages = [{
+      name = "rust";
+      language-server = { command = "${rustToolchain}/bin/rust-analyzer"; };
+    }];
   };
-    
+
   programs.gpg = {
-    enable = true;  
-    settings = {
-      default-key = "FF629AA9E08138DB";
-    };
+    enable = true;
+    settings = { default-key = "FF629AA9E08138DB"; };
   };
-    
+
   services.gpg-agent = {
     enable = true;
     enableSshSupport = true;
-    pinentryFlavor = "curses";  
-    sshKeys = [
-      "81CC27083653861F657A23280C32A9B41DAEF9A0"
-    ];
+    pinentryFlavor = "curses";
+    sshKeys = [ "81CC27083653861F657A23280C32A9B41DAEF9A0" ];
   };
 }
