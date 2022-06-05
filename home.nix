@@ -14,11 +14,7 @@ let
 in {
   nixpkgs.overlays = [ fenix.overlay ];
 
-  home = {
-    username = "nixos";
-    homeDirectory = "/home/nixos";
-    sessionVariables.EDITOR = "hx";
-  };
+  home.sessionVariables.EDITOR = "hx";
 
   home.packages = with pkgs; [ bintools clang lldb rustToolchain mold ];
   home.file.".cargo/config.toml".source =
