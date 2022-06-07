@@ -1,29 +1,7 @@
-{ config, pkgs, fenix, ... }:
+{ config, pkgs, ... }:
 
-let
-  rustToolchain = pkgs.fenix.complete.withComponents [
-    "cargo"
-    "clippy"
-    "llvm-tools-preview"
-    "rust-analyzer-preview"
-    "rust-src"
-    "rust-std"
-    "rustc"
-    "rustfmt"
-  ];
-in {
-  nixpkgs.overlays = [ fenix.overlay ];
-
+{
   home.sessionVariables.EDITOR = "hx";
-
-  home.packages = with pkgs; [ bintools clang lldb rustToolchain mold ];
-  home.file.".cargo/config.toml".source =
-    (pkgs.formats.toml { }).generate "cargo-config" {
-      target.x86_64-unknown-linux-gnu = {
-        linker = "clang";
-        rustflags = [ "-C" "link-arg=-fuse-ld=${pkgs.mold}/bin/mold" ];
-      };
-    };
 
   programs.home-manager.enable = true;
   programs.direnv.enable = true;
@@ -33,6 +11,9 @@ in {
     enable = true;
     shellAliases = { l = "exa -lah"; };
     functions = { fish_prompt = { body = builtins.readFile ./prompt.fish; }; };
+    interactiveShellInit = ''
+      gpg-connect-agent updatestartuptty /bye > /dev/null
+    '';
   };
 
   programs.git = {
@@ -62,10 +43,6 @@ in {
         cursor-shape.insert = "bar";
       };
     };
-    languages = [{
-      name = "rust";
-      language-server = { command = "${rustToolchain}/bin/rust-analyzer"; };
-    }];
   };
 
   programs.gpg = {
@@ -76,7 +53,7 @@ in {
   services.gpg-agent = {
     enable = true;
     enableSshSupport = true;
-    pinentryFlavor = "curses";
+    pinentryFlavor = "tty";
     sshKeys = [ "81CC27083653861F657A23280C32A9B41DAEF9A0" ];
   };
 }
