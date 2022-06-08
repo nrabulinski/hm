@@ -1,8 +1,8 @@
 { config, pkgs, ... }:
 
 {
-  home.sessionVariables.EDITOR = "hx";
-
+  imports = [ ./helix.nix ];
+  
   programs.home-manager.enable = true;
   programs.direnv.enable = true;
   programs.exa.enable = true;
@@ -30,19 +30,6 @@
   programs.neovim = {
     enable = true;
     vimAlias = true;
-  };
-
-  programs.helix = {
-    enable = true;
-    settings = {
-      theme = "onedark";
-      editor = {
-        true-color = true;
-        line-number = "relative";
-        mouse = false;
-        cursor-shape.insert = "bar";
-      };
-    };
   };
 
   programs.gpg = {

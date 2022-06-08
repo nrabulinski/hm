@@ -1,4 +1,4 @@
-{ pkgs, fenix ? null, ... }:
+{ pkgs, lib, fenix ? null, ... }:
 
 let
   rustToolchain = pkgs.fenix.complete.withComponents [
@@ -12,7 +12,7 @@ let
     "rustfmt"
   ];
 in {
-  nixpkgs.overlays = if isNull fenix then [] else [ fenix.overlay ];
+  nixpkgs.overlays = lib.optional (fenix != null) fenix.overlay;
 
   home.packages = with pkgs; [ bintools clang lldb rustToolchain mold ];
   home.file.".cargo/config.toml".source =
