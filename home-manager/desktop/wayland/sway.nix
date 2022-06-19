@@ -1,6 +1,8 @@
-{ lib, pkgs, ... }:
-
-let
+{
+  lib,
+  pkgs,
+  ...
+}: let
   dbus-sway-environment = pkgs.writeTextFile {
     name = "dbus-sway-env";
     executable = true;
@@ -38,7 +40,7 @@ in {
       };
     };
   };
-    
+
   wayland.windowManager.sway = {
     enable = true;
     config = {
@@ -46,12 +48,12 @@ in {
       menu = "";
       terminal = "${pkgs.foot}/bin/foot";
       startup = [
-        { command = "${dbus-sway-environment}"; }
+        {command = "${dbus-sway-environment}";}
       ];
     };
   };
-    
+
   services.kanshi.enable = true;
-  
+
   home.sessionVariables.WLR_NO_HARDWARE_CURSORS = 1;
 }

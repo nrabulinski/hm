@@ -1,34 +1,36 @@
-{ config, lib, pkgs, ... }:
-
 {
-  imports =
-    [
-      ./common.nix
-      ./sway.nix
-    ];
+  config,
+  lib,
+  pkgs,
+  ...
+}: {
+  imports = [
+    ./common.nix
+    ./sway.nix
+  ];
 
   boot.loader.grub.enable = true;
   boot.loader.grub.version = 2;
   boot.loader.grub.device = "/dev/sda";
 
   boot.initrd.checkJournalingFS = false;
-  boot.initrd.availableKernelModules = [ "ata_piix" "ohci_pci" "ehci_pci" "sd_mod" "sr_mod" ];
-  boot.initrd.kernelModules = [ ];
-  boot.kernelModules = [ ];
-  boot.extraModulePackages = [ ];
+  boot.initrd.availableKernelModules = ["ata_piix" "ohci_pci" "ehci_pci" "sd_mod" "sr_mod"];
+  boot.initrd.kernelModules = [];
+  boot.kernelModules = [];
+  boot.extraModulePackages = [];
 
-  fileSystems."/" =
-    { device = "/dev/disk/by-uuid/66f65e77-6f5f-42f8-b10f-bca2f40874dd";
-      fsType = "ext4";
-    };
-  
+  fileSystems."/" = {
+    device = "/dev/disk/by-uuid/66f65e77-6f5f-42f8-b10f-bca2f40874dd";
+    fsType = "ext4";
+  };
+
   fileSystems."/nikod" = {
     device = "nikod";
     fsType = "vboxsf";
-    options = [ "rw" "nofail" ];
+    options = ["rw" "nofail"];
   };
 
-  swapDevices = [ ];
+  swapDevices = [];
 
   # Enables DHCP on each ethernet and wireless interface. In case of scripted networking
   # (the default) this is the recommended approach. When using systemd-networkd it's

@@ -1,8 +1,10 @@
-{ config, pkgs, ... }:
-
 {
+  pkgs,
+  user,
+  ...
+}: {
   nix = {
-    package = pkgs.nixUnstable;
+    package = pkgs.nixFlakes;
     extraOptions = ''
       experimental-features = nix-command flakes
     '';
@@ -10,9 +12,9 @@
 
   time.timeZone = "Europe/Warsaw";
 
-  users.users.nixos = {
+  users.users.${user} = {
     isNormalUser = true;
-    extraGroups = [ "wheel" ];
+    extraGroups = ["wheel"];
     shell = pkgs.fish;
   };
 
